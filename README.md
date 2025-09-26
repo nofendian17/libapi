@@ -13,7 +13,7 @@ A Go library for standardized API responses with built-in support for tracing, p
 ## Installation
 
 ```bash
-go get github.com/nofendian17/libapi
+go get github.com/nofendian17/libapi/v1
 ```
 
 ## Quick Start
@@ -25,7 +25,7 @@ package main
 
 import (
     "net/http"
-    "github.com/nofendian17/libapi/response"
+    "github.com/nofendian17/libapi/v1"
 )
 
 func handler(w http.ResponseWriter, r *http.Request) {

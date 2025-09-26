@@ -1,4 +1,4 @@
-package response
+package v1
 
 // ValidationError represents a validation error for a specific field.
 type ValidationError struct {

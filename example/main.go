@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/nofendian17/libapi/response"
+	v1 "github.com/nofendian17/libapi/v1"
 )
 
 func main() {
@@ -21,7 +21,7 @@ func main() {
 // successHandler demonstrates a basic success response
 func successHandler(w http.ResponseWriter, r *http.Request) {
 	// Add trace ID to context
-	ctx := response.WithTraceID(r.Context(), "trace-123")
+	ctx := v1.WithTraceID(r.Context(), "trace-123")
 
 	// Create response data
 	data := map[string]any{
@@ -33,12 +33,12 @@ func successHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Create API response with trace ID
-	apiResp := response.NewAPIResponse(ctx)
-	apiResp.Status = response.StatusSuccess
+	apiResp := v1.NewAPIResponse(ctx)
+	apiResp.Status = v1.StatusSuccess
 	apiResp.Data = data
 
 	// Send response
-	if err := response.RespondJSON(w, http.StatusOK, apiResp); err != nil {
+	if err := v1.RespondJSON(w, http.StatusOK, apiResp); err != nil {
 		log.Printf("Failed to write response: %v", err)
 		http.Error(w, "Internal server error", http.StatusInternalServerError)
 	}
@@ -51,7 +51,7 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 
 	if err != nil {
 		// Create error response
-		resp := response.NewErrorResponse(
+		resp := v1.NewErrorResponse(
 			http.StatusInternalServerError,
 			"INTERNAL_ERROR",
 			"Database connection failed",
@@ -59,23 +59,23 @@ func errorHandler(w http.ResponseWriter, r *http.Request) {
 
 		// Add trace ID if available
 		if traceID := r.Header.Get("X-Trace-ID"); traceID != "" {
-			ctx := response.WithTraceID(r.Context(), traceID)
-			resp.TraceID = response.NewAPIResponse(ctx).TraceID
+			ctx := v1.WithTraceID(r.Context(), traceID)
+			resp.TraceID = v1.NewAPIResponse(ctx).TraceID
 		}
 
-		response.RespondJSON(w, http.StatusInternalServerError, resp)
+		v1.RespondJSON(w, http.StatusInternalServerError, resp)
 		return
 	}
 
 	// Success case
-	resp := response.NewSuccessResponse(map[string]string{"status": "ok"}, nil)
-	response.RespondJSON(w, http.StatusOK, resp)
+	resp := v1.NewSuccessResponse(map[string]string{"status": "ok"}, nil)
+	v1.RespondJSON(w, http.StatusOK, resp)
 }
 
 // validationHandler demonstrates validation error responses
 func validationHandler(w http.ResponseWriter, r *http.Request) {
 	// Simulate validation errors
-	details := []response.ValidationError{
+	details := []v1.ValidationError{
 		{
 			Field:   "email",
 			Message: "Must be a valid email address",
@@ -90,13 +90,13 @@ func validationHandler(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	resp := response.NewValidationErrorResponse(details)
+	resp := v1.NewValidationErrorResponse(details)
 
 	// Add trace ID
-	ctx := response.WithTraceID(r.Context(), "validation-trace-456")
-	resp.TraceID = response.NewAPIResponse(ctx).TraceID
+	ctx := v1.WithTraceID(r.Context(), "validation-trace-456")
+	resp.TraceID = v1.NewAPIResponse(ctx).TraceID
 
-	response.RespondJSON(w, http.StatusUnprocessableEntity, resp)
+	v1.RespondJSON(w, http.StatusUnprocessableEntity, resp)
 }
 
 // paginatedHandler demonstrates paginated responses
@@ -109,19 +109,19 @@ func paginatedHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Pagination metadata
-	meta := &response.Metadata{
+	meta := &v1.Metadata{
 		Page:       1,
 		PerPage:    10,
 		TotalItems: 25,
 	}
 
-	resp := response.NewSuccessResponse(items, meta)
+	resp := v1.NewSuccessResponse(items, meta)
 
 	// Add trace ID
-	ctx := response.WithTraceID(r.Context(), "pagination-trace-789")
-	resp.TraceID = response.NewAPIResponse(ctx).TraceID
+	ctx := v1.WithTraceID(r.Context(), "pagination-trace-789")
+	resp.TraceID = v1.NewAPIResponse(ctx).TraceID
 
-	response.RespondJSON(w, http.StatusOK, resp)
+	v1.RespondJSON(w, http.StatusOK, resp)
 }
 
 // simulateError simulates an error condition

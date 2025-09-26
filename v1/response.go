@@ -1,4 +1,4 @@
-package response
+package v1
 
 import (
 	"context"
