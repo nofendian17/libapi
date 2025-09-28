@@ -83,6 +83,21 @@ func validationHandler(w http.ResponseWriter, r *http.Request) {
     resp := response.NewValidationErrorResponse(details)
     response.RespondJSON(w, http.StatusUnprocessableEntity, resp)
 }
+
+// Or use the enhanced function with custom error code and message
+func customValidationHandler(w http.ResponseWriter, r *http.Request) {
+    details := []response.ValidationError{
+        {Field: "email", Message: "Invalid email format"},
+        {Field: "password", Message: "Password must be at least 8 characters"},
+    }
+
+    resp := response.NewValidationErrorResponseWithCodeAndMessage(
+        details, 
+        "CUSTOM_VALIDATION_ERROR", 
+        "Please check your input fields",
+    )
+    response.RespondJSON(w, http.StatusUnprocessableEntity, resp)
+}
 ```
 
 ### Pagination
@@ -182,6 +197,9 @@ func NewErrorResponse(httpStatus int, code string, message string) APIResponse
 
 // Create validation error response
 func NewValidationErrorResponse(details []ValidationError) APIResponse
+
+// Create validation error response with custom error code and message
+func NewValidationErrorResponseWithCodeAndMessage(details []ValidationError, code string, message string) APIResponse
 ```
 
 #### HTTP Helpers
@@ -231,7 +249,7 @@ func RespondJSON(w http.ResponseWriter, statusCode int, payload interface{}) err
   "trace_id": "trace-123",
   "error": {
     "code": "VALIDATION_FAILED",
-    "message": "Data yang dikirim tidak valid.",
+    "message": "The submitted data is invalid.",
     "details": [
       {
         "field": "email",

@@ -209,6 +209,10 @@ func TestNewValidationErrorResponse(t *testing.T) {
 		t.Errorf("NewValidationErrorResponse() Error.Code = %v, want VALIDATION_FAILED", response.Error.Code)
 	}
 
+	if response.Error.Message != "The submitted data is invalid." {
+		t.Errorf("NewValidationErrorResponse() Error.Message = %v, want %v", response.Error.Message, "The submitted data is invalid.")
+	}
+
 	if len(response.Error.Details) != len(details) {
 		t.Errorf("NewValidationErrorResponse() Error.Details length = %v, want %v", len(response.Error.Details), len(details))
 	}
@@ -216,6 +220,47 @@ func TestNewValidationErrorResponse(t *testing.T) {
 	for i, detail := range response.Error.Details {
 		if detail != details[i] {
 			t.Errorf("NewValidationErrorResponse() Error.Details[%d] = %v, want %v", i, detail, details[i])
+		}
+	}
+}
+
+func TestNewValidationErrorResponseWithCodeAndMessage(t *testing.T) {
+	details := []ValidationError{
+		{Field: "username", Message: "Username too short"},
+		{Field: "phone", Message: "Invalid phone format"},
+	}
+	code := "CUSTOM_VALIDATION_ERROR"
+	message := "Please check your input fields"
+
+	response := NewValidationErrorResponseWithCodeAndMessage(details, code, message)
+
+	if response.Status != StatusError {
+		t.Errorf("NewValidationErrorResponseWithCodeAndMessage() Status = %v, want %v", response.Status, StatusError)
+	}
+
+	if response.Error == nil {
+		t.Fatal("NewValidationErrorResponseWithCodeAndMessage() Error should not be nil")
+	}
+
+	if response.Error.HTTPStatus != http.StatusUnprocessableEntity {
+		t.Errorf("NewValidationErrorResponseWithCodeAndMessage() Error.HTTPStatus = %v, want %v", response.Error.HTTPStatus, http.StatusUnprocessableEntity)
+	}
+
+	if response.Error.Code != code {
+		t.Errorf("NewValidationErrorResponseWithCodeAndMessage() Error.Code = %v, want %v", response.Error.Code, code)
+	}
+
+	if response.Error.Message != message {
+		t.Errorf("NewValidationErrorResponseWithCodeAndMessage() Error.Message = %v, want %v", response.Error.Message, message)
+	}
+
+	if len(response.Error.Details) != len(details) {
+		t.Errorf("NewValidationErrorResponseWithCodeAndMessage() Error.Details length = %v, want %v", len(response.Error.Details), len(details))
+	}
+
+	for i, detail := range response.Error.Details {
+		if detail != details[i] {
+			t.Errorf("NewValidationErrorResponseWithCodeAndMessage() Error.Details[%d] = %v, want %v", i, detail, details[i])
 		}
 	}
 }

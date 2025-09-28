@@ -67,12 +67,27 @@ func NewErrorResponse(httpStatus int, code string, message string) APIResponse {
 //	resp := NewValidationErrorResponse(details)
 //	RespondJSON(w, http.StatusUnprocessableEntity, resp)
 func NewValidationErrorResponse(details []ValidationError) APIResponse {
+	return NewValidationErrorResponseWithCodeAndMessage(details, "VALIDATION_FAILED", "The submitted data is invalid.")
+}
+
+// NewValidationErrorResponseWithCodeAndMessage creates a validation error response with custom error code and message.
+// It automatically sets HTTP status to 422 Unprocessable Entity.
+//
+// Example:
+//
+//	details := []ValidationError{
+//	    {Field: "email", Message: "Invalid email format"},
+//	    {Field: "password", Message: "Too short"},
+//	}
+//	resp := NewValidationErrorResponseWithCodeAndMessage(details, "CUSTOM_ERROR", "Please check your input")
+//	RespondJSON(w, http.StatusUnprocessableEntity, resp)
+func NewValidationErrorResponseWithCodeAndMessage(details []ValidationError, code string, message string) APIResponse {
 	return APIResponse{
 		Status: StatusError,
 		Error: &APIError{
 			HTTPStatus: http.StatusUnprocessableEntity,
-			Code:       "VALIDATION_FAILED",
-			Message:    "Data yang dikirim tidak valid.",
+			Code:       code,
+			Message:    message,
 			Details:    details,
 		},
 	}
